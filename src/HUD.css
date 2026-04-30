@@ -1,0 +1,60 @@
+.hud-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  font-family: 'Courier New', Courier, monospace;
+  color: #00ffff;
+  padding: 30px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.hud-top-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hud-level {
+  font-size: 32px;
+  font-weight: 900;
+  color: #ff00ff;
+  text-shadow: 0 0 15px #ff00ff, 0 0 5px #ffffff;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+}
+
+.hud-stat {
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px #00ffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-stat-value {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.hud-completed-badge {
+  color: #00ff00;
+  text-shadow: 0 0 15px #00ff00;
+  font-size: 28px;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0.6; transform: scale(1); }
+}
