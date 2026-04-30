@@ -7,7 +7,93 @@
 :root {
   --retro-neon-cyan: #00ffff;
   --retro-neon-magenta: #ff00ff;
+  --retro-neon-purple: #8f00ff;
+  --retro-neon-green: #50ffae;
   --retro-glow: 0 0 15px var(--retro-neon-cyan), 0 0 25px var(--retro-neon-magenta);
+  --retro-scanline: rgba(255, 255, 255, 0.05);
+  --retro-grid: rgba(255, 255, 255, 0.08);
+}
+
+html, body, #root, .App {
+  min-height: 100%;
+  min-width: 100%;
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(circle at top, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.98) 55%),
+              radial-gradient(circle at bottom right, rgba(255, 0, 255, 0.05), transparent 30%),
+              #000;
+  color: #e8f8ff;
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 0.04em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: none;
+}
+
+body {
+  overflow-x: hidden;
+  background-color: #000;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(0, 255, 255, 0.05), transparent 30%),
+              linear-gradient(180deg, rgba(255, 0, 255, 0.05), transparent 40%);
+  opacity: 0.6;
+  z-index: 999998;
+}
+
+/* Global arcade/glitch text styling */
+* {
+  box-sizing: border-box;
+}
+
+div, span, p, button, label, input, canvas {
+  color: #e8f8ff;
+  text-shadow:
+    0 0 8px rgba(0, 255, 255, 0.65),
+    0 0 16px rgba(255, 0, 255, 0.4),
+    0 0 24px rgba(255, 0, 255, 0.2);
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+body * {
+  filter: saturate(1.4) contrast(1.2);
+}
+
+body *:not(canvas):not(#retro-aesthetic-overlay) {
+  mix-blend-mode: screen;
+}
+
+#root {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Neon arcade screen borders for top-level app */
+.App {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Extra glow and haze on important UI blocks */
+.App-header,
+.App > div,
+.App > div > div,
+div[style*='position: absolute'] {
+  text-shadow: 0 0 8px #00ffff, 0 0 18px #ff00ff, 0 0 26px #8f00ff;
+}
+
+/* Neon arcade button / HUD styling fallback for all UI elements */
+button,
+input,
+label {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(5, 5, 10, 0.64);
+  box-shadow: inset 0 0 18px rgba(0, 255, 255, 0.1), 0 0 24px rgba(255, 0, 255, 0.08);
 }
 
 /* 1. GLOBAL POST-PROCESSING LAYER */
@@ -17,61 +103,107 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  pointer-events: none; /* Crucial: allow clicks to pass through to the game */
+  pointer-events: none;
   z-index: 999999;
-  mix-blend-mode: screen; /* Blends the neon effects with the underlying game */
+  mix-blend-mode: screen;
 }
 
 /* 2. SCANLINES & GRID OVERLAY */
 #retro-aesthetic-overlay::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%),
-    linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.06) 50%),
+    linear-gradient(90deg, rgba(255, 0, 255, 0.03), rgba(0, 255, 255, 0.02), rgba(255, 0, 255, 0.03));
   background-size: 100% 3px, 3px 100%;
-  opacity: 0.8;
+  opacity: 0.65;
 }
 
 /* 3. VIGNETTE & FLICKER */
 #retro-aesthetic-overlay::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(18, 16, 16, 0) 40%, rgba(0, 0, 0, 0.6) 100%);
-  animation: retro-flicker 0.1s infinite;
+  inset: 0;
+  background: radial-gradient(circle, rgba(0, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.85) 70%);
+  animation: retro-flicker 0.12s infinite;
 }
 
 @keyframes retro-flicker {
-  0% { opacity: 0.97; }
+  0% { opacity: 0.92; }
   50% { opacity: 1; }
-  100% { opacity: 0.98; }
+  100% { opacity: 0.94; }
+}
+
+@keyframes neon-glitch {
+  0%, 100% { text-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff; transform: translate(0, 0); }
+  20% { text-shadow: 0 0 12px #50ffae, 0 0 22px #ff00ff; transform: translate(-0.4px, 0.2px); }
+  40% { text-shadow: 0 0 10px #00ffff, 0 0 18px #8f00ff; transform: translate(0.3px, -0.3px); }
+  60% { text-shadow: 0 0 14px #00ffff, 0 0 24px #ff00ff; transform: translate(0.2px, 0.5px); }
+  80% { text-shadow: 0 0 11px #50ffae, 0 0 21px #ff00ff; transform: translate(-0.5px, -0.2px); }
+}
+
+@keyframes arcade-pulse {
+  0%, 100% { opacity: 0.94; }
+  50% { opacity: 1; }
 }
 
 /* 4. TARGETING THE CANVAS WITHOUT TOUCHING JS */
-/* We apply the filters to the canvas element globally */
 canvas {
-  filter: 
-    saturate(3) 
-    contrast(1.2) 
-    brightness(1.2)
-    drop-shadow(0 0 10px var(--retro-neon-cyan)) !important;
+  filter:
+    brightness(1.8)
+    contrast(1.5)
+    saturate(2.2)
+    drop-shadow(0 0 2px #fff)
+    drop-shadow(0 0 10px var(--retro-neon-cyan))
+    drop-shadow(0 0 20px var(--retro-neon-magenta)) !important;
   image-rendering: pixelated !important;
+  box-shadow: inset 0 0 120px rgba(0, 255, 255, 0.06), 0 0 40px rgba(255, 0, 255, 0.12);
 }
 
-/* 5. PROTECTING THE UI (HUD) 
-   We ensure the UI stays clean by resetting its filters if they inherit anything
-*/
+canvas::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 5. GENERAL RETRO GLITCH + NEON EFFECTS */
+.App-header,
+.App > div,
+.App > div > div,
+body div,
+body span,
+body p {
+  animation: arcade-pulse 3s infinite ease-in-out, neon-glitch 8s infinite ease-in-out;
+}
+
+/* 6. PROTECTING THE UI (HUD) */
 .App > div > div {
   filter: none !important;
   mix-blend-mode: normal !important;
   position: relative;
-  z-index: 1000000 !important; /* Above the overlay */
+  z-index: 1000000 !important;
+}
+
+/* 7. ADDITIONAL RETRO DETAILS */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 16px,
+    rgba(255, 0, 255, 0.03) 16px,
+    rgba(255, 0, 255, 0.03) 17px
+  );
+  opacity: 0.1;
+}
+
+/* Keep interactive text crisp and arcade-style */
+button, input, label {
+  font-family: inherit;
+  color: inherit;
 }

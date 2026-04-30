@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import Player from './Player';
+import RetroEffects from './RetroEffects';
 
 // Componente para manejar múltiples obstáculos de forma eficiente
 const ObstacleManager = ({ currentLevel, forwardSpeed, setCollisions, isFinished, updatePlayerPos }) => {
@@ -60,7 +62,11 @@ const ObstacleManager = ({ currentLevel, forwardSpeed, setCollisions, isFinished
           ref={el => obstaclesRef.current[i] = el}
         >
           <boxGeometry args={data.size} />
-          <meshStandardMaterial color={data.color} />
+          <meshStandardMaterial 
+            color={data.color} 
+            emissive={data.color} 
+            emissiveIntensity={4} 
+          />
         </mesh>
       ))}
     </>
@@ -121,34 +127,70 @@ const Game = () => {
   const [isFinished, setIsFinished] = useState(false);
   const [playerPos, setPlayerPos] = useState({ x: 0, z: 0 });
   
-  const currentLevel = Math.floor(elapsedTime / 20) + 1;
+  // Lógica de niveles y fin de juego
+  const levelDuration = 20;
+  const maxLevels = 10;
+  const currentLevel = Math.min(Math.floor(elapsedTime / levelDuration) + 1, maxLevels);
   const forwardSpeed = 20 + currentLevel * 8;
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isFinished) {
-        setElapsedTime(((Date.now() - startTime) / 1000).toFixed(2));
+        const time = (Date.now() - startTime) / 1000;
+        setElapsedTime(time.toFixed(2));
+        
+        // Condición de victoria: completar 10 niveles
+        if (time >= levelDuration * maxLevels) {
+          setIsFinished(true);
+        }
       }
     }, 100);
     return () => clearInterval(interval);
   }, [startTime, isFinished]);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#050505', position: 'relative', cursor: 'none' }}>
+    <div style={{ width: '100vw', height: '100vh', background: '#050505', position: 'relative', cursor: isFinished ? 'auto' : 'none' }}>
+      {/* UI de Juego */}
       <div style={{ 
         position: 'absolute', top: 20, left: 20, color: '#00ffff', zIndex: 1, 
         fontFamily: 'monospace', pointerEvents: 'none', textShadow: '0 0 10px #00ffff'
       }}>
-        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ff00ff' }}>LEVEL: {currentLevel}</div>
+        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ff00ff' }}>
+          {isFinished && elapsedTime >= 200 ? 'COMPLETED' : `LEVEL: ${currentLevel}`}
+        </div>
         <div>ERRORS: {collisions}</div>
         <div>TIME: {elapsedTime}s</div>
       </div>
 
+      {/* Pantalla de Resultados */}
+      {isFinished && (
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          backgroundColor: 'rgba(0, 0, 0, 0.9)', padding: '40px', border: '2px solid #ff00ff',
+          color: '#00ffff', textAlign: 'center', zIndex: 10, fontFamily: 'monospace',
+          boxShadow: '0 0 20px #ff00ff'
+        }}>
+          <h1 style={{ color: '#ff00ff', fontSize: '40px', margin: '0 0 20px 0' }}>MISSION ACCOMPLISHED</h1>
+          <p style={{ fontSize: '20px' }}>FINAL TIME: {elapsedTime}s</p>
+          <p style={{ fontSize: '20px' }}>TOTAL ERRORS: {collisions}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              marginTop: '20px', padding: '10px 20px', backgroundColor: '#ff00ff',
+              color: 'white', border: 'none', cursor: 'pointer', fontFamily: 'monospace',
+              fontWeight: 'bold'
+            }}
+          >
+            PLAY AGAIN
+          </button>
+        </div>
+      )}
+
       <Canvas camera={{ fov: 45, position: [0, 10, 15] }}>
         <color attach="background" args={['#050505']} />
         <Stars radius={100} depth={50} count={500} factor={4} fade speed={0.5} />
-        <ambientLight intensity={0.8} />
-        <pointLight position={[0, 20, 0]} intensity={1} />
+        <ambientLight intensity={0.2} />
+        <pointLight position={[0, 20, 0]} intensity={0.5} />
         
         <ScrollingRoad forwardSpeed={forwardSpeed} isFinished={isFinished} />
         
@@ -159,6 +201,8 @@ const Game = () => {
           isFinished={isFinished}
           updatePlayerPos={setPlayerPos}
         />
+
+        <RetroEffects />
       </Canvas>
     </div>
   );
